@@ -263,6 +263,23 @@ a black shirt..."). Both are discussed in Limitations below.
 - Captions are grammatically simple, generic, and can miss uncommon
   objects, spatial relationships, or scenes not well represented in
   Flickr8k's largely people/animals/outdoor-activity photos.
+- **Demonstrated case study — class imbalance causes wrong captions for
+  rare objects.** Flickr8k's 8,091 images mention "dog" in ~1,488 images
+  (~18%) but "cat" in only **21 images (0.26%)**; "a dog is/runs through
+  the grass" (or a near-identical variant) is one of the single most
+  frequent sentences in the entire 40,460-caption corpus. As a result,
+  this trained model captions *any* cat photo — including cat images
+  taken directly from its own training set — as "A dog is running
+  through the grass." It isn't ignoring the image; with almost no
+  training signal for an object class, the decoder falls back on its
+  strongest language-model prior (the most statistically common
+  caption). This is a textbook exposure-bias / class-imbalance failure
+  mode for a small, attention-free encoder-decoder captioner, and is a
+  direct, verifiable consequence of Flickr8k's composition and this
+  project's intentionally small scale — not a bug in the pipeline. Fixing
+  it properly needs either a larger/more balanced dataset or an attention
+  mechanism (both listed under Future Scope, and both out of scope for
+  this mini-project by design).
 - Training ran on CPU within this environment; a GPU or more epochs
   would likely reduce loss further and improve fluency.
 - Greedy decoding is simple and explainable but can produce mildly
