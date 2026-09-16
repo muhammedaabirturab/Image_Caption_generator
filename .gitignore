@@ -1,0 +1,30 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Dataset (do not commit — see data/README.md for download instructions)
+data/raw/
+data/processed/*.pkl
+data/processed/*.json
+
+# Trained models / large artifacts (see models/README.md)
+models/*.keras
+models/*.h5
+
+# Logs and temporary files
+*.log
+outputs/tmp/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

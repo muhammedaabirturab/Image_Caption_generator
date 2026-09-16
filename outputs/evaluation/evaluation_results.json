@@ -1,0 +1,77 @@
+{
+  "num_test_images": 1000,
+  "bleu_scores": {
+    "BLEU-1": 0.2962962962962963,
+    "BLEU-2": 0.17953723795727153,
+    "BLEU-3": 0.09996936986053559,
+    "BLEU-4": 0.05834601656190928
+  },
+  "qualitative_examples": [
+    {
+      "image_id": "3385593926_d3e9c21170.jpg",
+      "actual_captions": [
+        "the dogs are in the snow in front of a fence",
+        "the dogs play on the snow",
+        "two brown dogs playfully fight in the snow",
+        "two brown dogs wrestle in the snow",
+        "two dogs playing in the snow"
+      ],
+      "generated_caption": "a dog is running through the grass"
+    },
+    {
+      "image_id": "2677656448_6b7e7702af.jpg",
+      "actual_captions": [
+        "a brown and white dog swimming towards some in the pool",
+        "a dog in a swimming pool swims toward sombody we cannot see",
+        "a dog swims in a pool near a person",
+        "small dog is paddling through the water in a pool",
+        "the small brown and white dog is in the pool"
+      ],
+      "generated_caption": "a young girl in a pink shirt is playing with a ball in the grass"
+    },
+    {
+      "image_id": "311146855_0b65fdb169.jpg",
+      "actual_captions": [
+        "a man and a woman in festive costumes dancing",
+        "a man and a woman with feathers on her head dance",
+        "a man and a woman wearing decorative costumes and dancing in a crowd of onlookers",
+        "one performer wearing a feathered headdress dancing with another performer in the streets",
+        "two people are dancing with drums on the right and a crowd behind them"
+      ],
+      "generated_caption": "a man in a red shirt and a woman in a red shirt and a woman in a red shirt and a woman in a red shirt and a woman in a red shirt and a woman"
+    },
+    {
+      "image_id": "1258913059_07c613f7ff.jpg",
+      "actual_captions": [
+        "a couple of people sit outdoors at a table with an umbrella and talk",
+        "three people are sitting at an outside picnic bench with an umbrella",
+        "three people sit at an outdoor cafe",
+        "three people sit at an outdoor table in front of a building painted like the union jack",
+        "three people sit at a picnic table outside of a building painted like a union jack"
+      ],
+      "generated_caption": "a man in a red shirt and a black shirt and a black shirt and a black shirt and a black shirt and a black shirt and a black shirt and a black shirt and a black"
+    },
+    {
+      "image_id": "241347760_d44c8d3a01.jpg",
+      "actual_captions": [
+        "a man is wearing a sooners red football shirt and helmet",
+        "a oklahoma sooners football player wearing his jersey number",
+        "a sooners football player weas the number and black armbands",
+        "guy in red and white football uniform",
+        "the american footballer is wearing a red and white strip"
+      ],
+      "generated_caption": "a football player in a red uniform is playing basketball"
+    },
+    {
+      "image_id": "2654514044_a70a6e2c21.jpg",
+      "actual_captions": [
+        "a brown dog running",
+        "a brown dog running over grass",
+        "a brown dog with its front paws off the ground on a grassy surface near red and purple flowers",
+        "a dog runs across a grassy lawn near some flowers",
+        "a yellow dog is playing in a grassy area near flowers"
+      ],
+      "generated_caption": "a dog is running through the grass"
+    }
+  ]
+}
