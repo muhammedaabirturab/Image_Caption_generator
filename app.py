@@ -75,7 +75,7 @@ def main():
             st.error("Could not read this file as an image. Please upload a valid JPG/PNG.")
             return
 
-        st.image(image, caption="Uploaded image", use_container_width=True)
+        st.image(image, caption="Uploaded image", use_column_width=True)
 
         with st.spinner("Generating caption..."):
             try:
