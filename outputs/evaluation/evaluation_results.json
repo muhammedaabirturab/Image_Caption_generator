@@ -1,23 +1,12 @@
 {
-  "num_test_images": 32,
+  "num_test_images": 122,
   "bleu_scores": {
-    "BLEU-1": 0.7136686595251353,
-    "BLEU-2": 0.5217514733479548,
-    "BLEU-3": 0.33289059463975956,
-    "BLEU-4": 0.2152050793344715
+    "BLEU-1": 0.609015033147966,
+    "BLEU-2": 0.4375616457072923,
+    "BLEU-3": 0.3111792492520952,
+    "BLEU-4": 0.21782536359606652
   },
   "qualitative_examples": [
-    {
-      "image_id": "1799271536_6e69c8f1dc.jpg",
-      "actual_captions": [
-        "a brown and black dog runs down a sandy beach",
-        "an animal running through the sand at the beach",
-        "an orange cat with black stripes on a beach",
-        "a striped dog runs along the beach",
-        "long necked dog jumps on"
-      ],
-      "generated_caption": "a dog is running on a beach"
-    },
     {
       "image_id": "2882483779_73c171ac19.jpg",
       "actual_captions": [
@@ -27,73 +16,84 @@
         "big black dog and kitten curiously looking at the wooden weave basket",
         "the pets play in the apartment"
       ],
-      "generated_caption": "a dog is playing on the snow"
+      "generated_caption": "a man plays with his dog on the floor"
     },
     {
-      "image_id": "3535084928_858544f49a.jpg",
+      "image_id": "1799271536_6e69c8f1dc.jpg",
       "actual_captions": [
-        "a brown dogs licks its black nose",
-        "a closeup of a dog licking his nose",
-        "a closeup of a dog with a white chest licking its nose",
-        "a dog is licking its nose in the grass",
-        "there is a dog licking its chops"
+        "a brown and black dog runs down a sandy beach",
+        "an animal running through the sand at the beach",
+        "an orange cat with black stripes on a beach",
+        "a striped dog runs along the beach",
+        "long necked dog jumps on"
       ],
-      "generated_caption": "a dog is running on the snow"
+      "generated_caption": "a black dog is running through the snow"
     },
     {
-      "image_id": "2543589122_ec3e55f434.jpg",
+      "image_id": "2120411340_104eb610b1.jpg",
       "actual_captions": [
-        "a beige and dark brown dog plays in the swimming pool with his mouth open",
-        "a black and white dog trying to bite a stream of water",
-        "a dog is making a splash in a blue paddling pool",
-        "a dog is splashing through water trying to catch ice in its mouth",
-        "a dog playing in some water"
+        "a dog and a cow are on a rocky slope",
+        "a dog and a cow are standing on a hillside",
+        "a white dog looks at a nervous cow in a mountain setting",
+        "a white dog stands in front of a cow that has its head down and horns directed at the dog",
+        "two dogs are in a grassy area"
       ],
-      "generated_caption": "a black dog is running in the snow"
+      "generated_caption": "a dog is running through a field"
     },
     {
-      "image_id": "3251976937_20625dc2b8.jpg",
+      "image_id": "3159641529_c2c74f3eaf.jpg",
       "actual_captions": [
-        "a brown dog holding a huge stick in its mouth running in the snow",
-        "a brown dog holding a really big stick",
-        "a dog in the snow carrying a tree limb in its mouth",
-        "brown dog runs through snow with a snow covered branch in its mouth",
-        "the brown dog running in the snow is carrying a large stick also covered with snow"
+        "a dog leaps across the grass",
+        "a white and brown dog is running over grass",
+        "a white dog with a red collar and black spots runs on newly cut grass",
+        "the dog in a red collar runs in the grass",
+        "white dog with black markings and red collar leaping over the grass"
       ],
-      "generated_caption": "a black dog is running in the water"
+      "generated_caption": "a black dog runs through a field"
     },
     {
-      "image_id": "3673165148_67f217064f.jpg",
+      "image_id": "2837808847_5407af1986.jpg",
       "actual_captions": [
-        "a brown and white dog is standing in shallow water on a beach near a large rock outcrop",
-        "a brown and white dog on the beach",
-        "a dog standing on a beach",
-        "a dog stands on the beach with a large rock behind him",
-        "an unusual looking dog is standing in front of a beautiful backdrop"
+        "a brown a dog and a black dog in the edge of the ocean with a wave under them boats are on the water in the background",
+        "two dogs one brown and the other black play in the surf in the shallow ocean water",
+        "two dogs playing in the waves",
+        "two dogs play in the water",
+        "two dogs stand back to back in the ocean"
       ],
-      "generated_caption": "a dog is running out of the beach"
+      "generated_caption": "a black dog is swimming in the water"
     },
     {
-      "image_id": "3346711367_5e7b29e20f.jpg",
+      "image_id": "488196964_49159f11fd.jpg",
       "actual_captions": [
-        "a black dog is chasing a tan and white dog on a sunny day",
-        "a black dog is running behind a brown and white dog across a low cut field",
-        "a brown and white dog runs through the grass chased by a black dog",
-        "two dogs chase down a mowed grass field",
-        "two dogs running in grassy area"
+        "a brown dog retrieves a ball on a green slimy rock covered beach",
+        "a dog is carrying a yellow rope across rocks covered in seaweed",
+        "a dog running through water with a ball in its mouth",
+        "a dog walks through the water with an object in its mouth",
+        "a very wet dog coming toward the camera through a mossy pond with a ball"
       ],
-      "generated_caption": "a dog is running on the snow"
+      "generated_caption": "a dog is running through the water"
     },
     {
-      "image_id": "290019324_23582048d4.jpg",
+      "image_id": "2869491449_1041485a6b.jpg",
       "actual_captions": [
-        "a black and white dog with a spotted face is running through a dirt field",
-        "a dog is running",
-        "a dog runs across the ground",
-        "a white and black dog is running over dirt",
-        "the black and white dog trots through the dirt"
+        "two dobermans fighting or playing together on a lawn",
+        "two dogs fight on the grass",
+        "two dogs play together",
+        "two dogs wrestle in the grass",
+        "two large dogs are fighting with teeth bared near some trees"
       ],
-      "generated_caption": "a dog is running on the snow"
+      "generated_caption": "a black dog is running through the snow"
+    },
+    {
+      "image_id": "3642220260_3aa8a52670.jpg",
+      "actual_captions": [
+        "a black dog on a rocky beach",
+        "a black dog walks along an ocean front",
+        "a black dog walks on the beach near the rocks",
+        "a black dog walks on the sand",
+        "black dog walking on the beach after swimming in the ocean"
+      ],
+      "generated_caption": "a black dog is running through the water"
     }
   ]
 }

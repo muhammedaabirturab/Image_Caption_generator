@@ -71,5 +71,10 @@ RANDOM_SEED = 42
 # Dog/cat-only dataset scope (see src/data_preprocessing.py:build_dog_cat_splits
 # and the README's Dataset section for why the project is scoped this way).
 # ---------------------------------------------------------------------------
-DOG_SAMPLE_SIZE = 300     # randomly keep at most this many of Flickr8k's ~2012 dog images
+DOG_SAMPLE_SIZE = 1200    # randomly keep at most this many of Flickr8k's ~2012 dog images.
+                          # Started at 300 for a fast first pass, but that starved the model
+                          # of visual diversity for grounding setting/action words (e.g. it
+                          # said "snow" for a clearly grassy photo even though "grass" is
+                          # 3x more common than "snow" in the training captions) -- 300
+                          # images just isn't enough variety to learn that distinction well.
 CAT_OVERSAMPLE_CAP = 10   # never repeat a single cat training image more than this

@@ -73,9 +73,15 @@ much smaller dataset trains in minutes instead of hours.
 1. Every Flickr8k image is classified as dog, cat, or neither, by
    keyword-matching its 5 captions (`dog(s)`/`puppy(-ies)` vs.
    `cat(s)`/`kitten(s)`). Images mentioning neither are dropped.
-2. Dog images are randomly downsampled to at most 300 (out of ~2,012) —
-   still far more than the cat class can match, but small enough that
-   dogs don't drown out the much rarer cats.
+2. Dog images are randomly downsampled to at most 1,200 (out of ~2,012).
+   An earlier version of this project capped dogs at just 300 for faster
+   iteration, but that turned out to be a real mistake, not just a
+   speed/quality tradeoff: 300 images wasn't enough *visual diversity*
+   for the model to reliably tell grass, snow, sand and dirt apart, so
+   it kept defaulting to whichever setting word it had seen the
+   strongest (if not even the most frequent) association with — see the
+   grass/snow finding under Results. 1,200 fixes most (not all) of that
+   while still capping the dominant class well below its true size.
 3. All cat images are kept (there are only 23 total).
 4. The result is split **80/10/10 by image** (with a minimum of 2
    images in validation/test even for the tiny cat class), so no
@@ -85,7 +91,7 @@ much smaller dataset trains in minutes instead of hours.
 
 | | Total | Train | Val | Test |
 |---|---|---|---|---|
-| Dog | 300 | 240 | 30 | 30 |
+| Dog | 1,200 | 960 | 120 | 120 |
 | Cat | 23 | 19 | 2 | 2 |
 
 Within training only, cat images are additionally **oversampled**
@@ -214,7 +220,7 @@ python -m src.train
 Optional flags:
 
 ```bash
-python -m src.train --epochs 40 --batch-size 64           # full run (dataset is small, trains in minutes)
+python -m src.train --epochs 30 --batch-size 64           # full run (~20-30 min on a laptop CPU)
 python -m src.train --limit-images 40 --epochs 2          # quick pipeline sanity check
 python -m src.train --no-oversample-cats                  # train without cat oversampling
 ```
@@ -253,118 +259,143 @@ anything itself.
 Results below are from an actual training + evaluation run of this code
 on the dog/cat-filtered dataset (not fabricated) — raw numbers are in
 `outputs/evaluation/evaluation_results.json` and
-`outputs/evaluation/training_history.json`.
+`outputs/evaluation/training_history.json`. This is the second full
+retrain of the dog/cat model — see the note on dog sample size below for
+why.
 
-**Setup:** trained on 259 unique dog/cat training images (240 dog + 19
-cat, oversampled to 430 samples/epoch), validated on 32 images,
-evaluated on a held-out 32-image test set. Vocabulary: 638 words (down
-from 4,478 on the unrestricted dataset — a direct result of the much
-narrower domain). Max caption length: 29 tokens. Embedding/LSTM size:
-256. Batch size: 64.
+**Setup:** trained on 979 unique dog/cat training images (960 dog + 19
+cat, oversampled to 1,150 samples/epoch), validated on 122 images,
+evaluated on a held-out 122-image test set. Vocabulary: 1,180 words. Max
+caption length: 34 tokens. Embedding/LSTM size: 256. Batch size: 64.
 
 **Training:** `EarlyStopping` (patience 5, monitoring `val_loss`)
-stopped training after **9 epochs** (about 9 minutes total on this
-machine's CPU), restoring the weights from **epoch 4**, which had the
+stopped training after **10 epochs** (about 27 minutes total on this
+machine's CPU), restoring the weights from **epoch 5**, which had the
 lowest validation loss (see `outputs/figures/training_history.png` —
-training loss keeps falling afterwards while validation loss rises, the
-same overfitting pattern seen on the full dataset, just resolved much
-faster here since each epoch sees far less data).
+the same overfitting pattern as every other run here: training loss
+keeps falling while validation loss flattens then rises).
 
-**BLEU on the 32-image test set** (greedy decoding, corpus BLEU):
+**BLEU on the 122-image test set** (greedy decoding, corpus BLEU):
 
-| Metric | Unrestricted (8k) run | Dog/cat-only run |
-|---|---|---|
-| BLEU-1 | 0.296 | **0.714** |
-| BLEU-2 | 0.180 | **0.522** |
-| BLEU-3 | 0.100 | **0.333** |
-| BLEU-4 | 0.058 | **0.215** |
+| Metric | Unrestricted (8k) run | Dog/cat, 300 dogs | Dog/cat, 1,200 dogs (current) |
+|---|---|---|---|
+| BLEU-1 | 0.296 | 0.714 | **0.609** |
+| BLEU-2 | 0.180 | 0.522 | **0.438** |
+| BLEU-3 | 0.100 | 0.333 | **0.311** |
+| BLEU-4 | 0.058 | 0.215 | **0.218** |
 
-BLEU jumped substantially after narrowing the domain — expected, since
-the vocabulary and scene variety the model has to cover shrank a lot.
-These two numbers aren't a fully apples-to-apples comparison (different
-test sets, different sizes), but the qualitative results below tell the
-more honest story.
+BLEU-1/2 actually *dropped* from the 300-dog run. That's not a
+regression — the 300-dog run was evaluated on only 32 test images with
+a 638-word vocabulary; this run is evaluated on 122 test images (a much
+more representative sample) with a 1,180-word vocabulary (more ways to
+phrase something, and more ways to be scored as "wrong" for not matching
+the exact reference wording). BLEU-4 essentially held steady. The real
+evidence for whether the underlying problem improved is the targeted
+check below, not the aggregate BLEU number.
 
-**Qualitative results — dogs:** on the held-out dog test images, the
-model reliably identifies "dog" and a plausible action/setting, e.g. a
-real test example: actual *"a beige and dark brown dog plays in the
-swimming pool with his mouth open"* → generated *"a black dog is running
-in the snow"* — right subject and register, wrong specific action/color
-(no image evidence is actually used to distinguish these; the decoder
-still leans on frequent phrase patterns rather than describing what's
-uniquely different about each photo). See
-`outputs/figures/sample_predictions.png`.
+**Targeted check — does it still say "snow" for grass?** This is what
+actually motivated retraining with more dog images: a real user-uploaded
+photo of a dog running on visibly green grass got captioned "a dog is
+running across the snow." Investigating showed this wasn't a
+word-frequency bug (in the training captions, "grass" outnumbers "snow"
+3-to-1, even in the exact "running ___ the ___" phrase position) — the
+300-dog model just hadn't seen enough visual variety to ground the
+distinction reliably. After retraining with 4× more dog images:
 
-**Qualitative results — cats (the actual point of this exercise):**
-this is the more important test, since it's the failure mode that
-motivated restricting the dataset in the first place. Testing directly
-on all 9 unambiguous cat photos in the dataset:
-
-| Image (in training set) | Generated caption |
+| | 35 grass-only test images |
 |---|---|
-| `300222673_573fd4044b.jpg` | "A man plays his yellow guitar while staring at his cat." |
-| `771048251_602e5e8f45.jpg` | "A orange kitten biting the nose of a child." |
-| `3539817989_5353062a39.jpg` | "A man kneeling on the ground surrounded by several cats." |
-| `50030244_02cd4de372.jpg` | "A cat sits alone in dry grass." |
-| `3229898555_16877f5180.jpg` | "A white and brown cat bats at a frayed string dangling in front of him." |
-| `3354075558_3b67eaa502.jpg` | "A blackstriped cat is looking at a cord it has pinned with a paw." |
-| `3421480658_b3518b6819.jpg` | "A girl reaches up to kiss a cat which is sitting on the counter." |
-| **`2973269132_252bfd0160.jpg` (held-out, val split)** | **"A dog is running on the grass."** |
-| `2506892928_7e79bec613.jpg` (train) | "Three children play in the garden." (doesn't mention either animal) |
+| Incorrectly captioned with "snow" | **5 (14%)** |
 
-7 of the 8 training-set cat images now correctly say "cat"/"kitten" —
-a real improvement over the unrestricted model, which said "dog" for
-every cat photo it was given, including ones from its own training set.
-**But the one cat image that was genuinely held out of training
-(validation split) still gets captioned "a dog is running on the
-grass"** — the exact old failure mode. With only 19 cat training images,
-even after 10× oversampling, the model has enough repeated exposure to
-recognise *those specific photos* but not enough visual diversity to
-reliably generalise the concept "cat" to a new one. This is discussed
-further in Limitations.
+Down substantially from the original failure (which was consistent
+enough that a random real-world grass photo hit it), but **not solved**
+— 1 in 7 grass-only photos in this exact check still gets "snow." More
+training images and/or more epochs would likely narrow this further; an
+attention mechanism (Future Scope) would address it more fundamentally
+by letting the decoder actually look at image regions instead of relying
+on one pooled feature vector per image.
+
+**Qualitative results — cats:** re-run on this larger model, the result
+is unchanged from the 300-dog run (expected — the cat data didn't
+change). All 9 unambiguous cat photos in the dataset:
+
+| Image | Split | Generated caption | Correct? |
+|---|---|---|---|
+| `3354075558_3b67eaa502.jpg` | train | "A cat licks itself on a tile floor." | ✅ |
+| `50030244_02cd4de372.jpg` | train | "A group of cats sit in the grass." | ✅ |
+| `300222673_573fd4044b.jpg` | train | "A man plays a song on the guitar for his cat." | ✅ |
+| `3229898555_16877f5180.jpg` | train | "A cat standing on carpet is interested in a piece of string..." | ✅ |
+| `3539817989_5353062a39.jpg` | train | "A man kneeling on the ground surrounded by several cats." | ✅ |
+| `771048251_602e5e8f45.jpg` | train | "A blonde child is being bitten on the nose by a little orange kitten." | ✅ |
+| `3421480658_b3518b6819.jpg` | train | "A young girl standing next to a yellow cat on a kitchen countertop." | ✅ |
+| `2506892928_7e79bec613.jpg` | train | "Three children pose among wildflowers." (mentions neither animal) | ❌ |
+| **`2973269132_252bfd0160.jpg`** | **val (held out)** | **"A dog is running on a grassy field."** | **❌** |
+
+7/9 correct, but the *only* held-out cat image (never used for a weight
+update) is still captioned as a dog. This is the same conclusion as
+before, now re-confirmed on a differently-trained model: the model
+recognises the specific cat photos it was oversampled on, not a
+generalised "cat" concept. Adding more dog images didn't and wasn't
+expected to change this — cat coverage is still capped at 19 training
+images. See Limitations.
 
 ## 13. Limitations
 
+- **Setting/action words (e.g. "snow" vs. "grass") are still sometimes
+  wrong even when the animal is right — verified, not assumed.** A real
+  user-uploaded photo of a dog on green grass was captioned "running
+  across the snow." Investigation showed this was a genuine
+  visual-grounding weakness, not a word-frequency artifact ("grass"
+  outnumbers "snow" 3-to-1 in the training captions, even in the exact
+  phrase position generated). Retraining with 4× more dog images (300 →
+  1,200) cut the error rate on a targeted check from a consistent,
+  reproducible failure down to **5/35 (14%)** of grass-only test images
+  still being mislabelled "snow." Meaningfully better, not solved.
+  Because the model conditions on a single pooled 2048-d image vector
+  with no attention over image regions, fine-grained background details
+  compete with a fairly strong "frequent phrase" prior learned from the
+  captions; more data narrows this gradually rather than fixing it
+  outright.
 - **Cat generalisation is memorisation, not true recognition — verified,
   not assumed.** Flickr8k has only 9 unambiguous cat photos and 14 more
   showing a dog and cat together. Even with 10× training-time
   oversampling, the one cat photo held out of training (never used to
-  update weights) still gets captioned "a dog is running on the grass" —
-  the identical failure mode this project set out to fix. The 7/8
-  training-set cat images that *are* now captioned correctly likely
-  reflect the model having enough repeated exposure to recognise those
-  specific photos, not a generalised visual concept of "cat." This is a
-  genuine, demonstrated ceiling of Flickr8k's composition (23 cat images
-  total in 8,091), not a bug in the pipeline — no amount of resampling
-  the existing images manufactures new visual diversity. A real fix
-  needs actual additional cat photographs, which is outside Flickr8k and
-  outside this project's stated scope.
+  update weights) still gets captioned as a dog — the identical failure
+  mode this project set out to fix. The 7/9 training-set cat images that
+  *are* captioned correctly likely reflect the model having enough
+  repeated exposure to recognise those specific photos, not a
+  generalised visual concept of "cat." This is a genuine, demonstrated
+  ceiling of Flickr8k's composition (23 cat images total in 8,091), not
+  a bug in the pipeline — no amount of resampling the existing images
+  manufactures new visual diversity, and unlike the dog/grass-snow case,
+  simply sampling more images can't fix this because there are no more
+  cat images left in Flickr8k to sample. A real fix needs actual
+  additional cat photographs, which is outside Flickr8k and outside this
+  project's stated scope.
 - **The model's usable scope is dogs and cats only, by design.** Point
   it at any other subject and it will still emit *some* caption (usually
   defaulting to a frequent dog-scene phrase), but there is no meaningful
   training signal behind that output — it should not be trusted for
   anything outside these two classes.
-- Uploading a genuinely different-looking dog or cat than anything in
-  Flickr8k's ~300 sampled dog / 19 trained cat images can still get a
-  generic or mismatched caption — 300/19 images is a small sample even
-  within just two classes.
-- Captions are grammatically simple and can attach the wrong color,
-  action, or setting to an otherwise correctly-identified animal (see
-  the swimming-pool example in Results) — the model often gets *what*
-  animal it is right without correctly describing *what it's doing*.
-- Training ran on CPU within this environment; a GPU would allow more
-  experimentation (larger cat samples, attention, etc.) within the same
-  time budget.
+- Captions are grammatically simple and can attach the wrong color or
+  action to an otherwise correctly-identified animal in its correct
+  setting — the model often gets *what* animal and roughly *where* right
+  without correctly describing the specific action.
+- Training ran on CPU within this environment; a GPU would allow larger
+  dog/cat samples and more architecture experiments within the same time
+  budget.
 - Greedy decoding is simple and explainable but does not consider
   alternative, possibly better, word sequences the way beam search
   would; it also tends to reuse frequent training-set phrases.
 - BLEU rewards n-gram overlap with the specific reference captions
-  available; with only a 32-image test set here, BLEU is a noisier
-  signal than on the full 1,000-image split, and single outliers move it
-  more.
+  available; a caption can be reasonable and still score low if it's
+  phrased differently from all 5 references.
 
 ## 14. Future Scope
 
+- Use the full ~2,012 dog images instead of capping at 1,200, and/or
+  train more epochs before early stopping — the grass/snow error rate
+  dropped substantially (see Results) when dog images went from 300 to
+  1,200, so more still-available data would plausibly help further.
 - Add real additional cat (and other animal) photos beyond Flickr8k so
   oversampling has genuine visual diversity to work with, not just
   repeats of the same handful of images.
@@ -389,10 +420,17 @@ every uncertain image, cats included); restricting scope made the
 problem small enough to solve within Flickr8k's real limits, and testing
 directly on a genuinely held-out cat photo shows the fix is partial —
 correct for training-set-adjacent cats, but not yet a generalised
-concept of "cat." That honest, verified result, not a polished-looking
-BLEU number, is the actual takeaway suitable for a viva discussion of
-class imbalance, few-shot learning, and the limits of resampling without
-new data. Every stage (preprocessing, transfer-learning feature
+concept of "cat." A second iteration, prompted by a real user-uploaded
+photo getting an obviously wrong setting ("snow" for a grass field),
+found that the initial 300-image dog sample (chosen purely for fast
+training) was too visually narrow, and quadrupling it measurably cut —
+without fully eliminating — that error. That pattern of finding a
+concrete failure, verifying its actual cause with data rather than
+guessing, and quantifying the fix rather than declaring victory, is the
+real methodological takeaway here, more so than any single BLEU number:
+it's a case study in class imbalance, sample-size-driven visual
+grounding, few-shot learning, and the limits of resampling without new
+data. Every stage (preprocessing, transfer-learning feature
 extraction, model training, greedy decoding, BLEU evaluation, and a
 Streamlit demo) is implemented, tested, and reproducible from the raw
 dataset.

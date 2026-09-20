@@ -1,7 +1,7 @@
 {
-  "vocab_size": 638,
-  "max_length": 29,
+  "vocab_size": 1180,
+  "max_length": 34,
   "embedding_dim": 256,
   "lstm_units": 256,
-  "epochs_trained": 9
+  "epochs_trained": 10
 }
