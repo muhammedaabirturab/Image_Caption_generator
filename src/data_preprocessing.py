@@ -109,6 +109,117 @@ def get_splits():
 
 
 # ---------------------------------------------------------------------------
+# Dog/cat-only dataset scope
+# ---------------------------------------------------------------------------
+# This project intentionally restricts itself to two animal classes: dogs
+# and cats. Flickr8k has ~2,012 dog images but only ~9 pure cat images (plus
+# ~14 images showing both) out of 8,091 total -- with the full, unrestricted
+# dataset, a small mini-project model kept defaulting to "a dog is running
+# through the grass" for anything it was unsure about, including real cat
+# photos, because "dog" was such an overwhelming prior. Narrowing the whole
+# project to just dogs vs. cats keeps every training image relevant to one
+# of two classes that can be reasoned about and explained clearly, and
+# trains fast enough to iterate on with limited compute.
+DOG_KEYWORDS = ["dog", "dogs", "puppy", "puppies"]
+CAT_KEYWORDS = ["cat", "cats", "kitten", "kittens"]
+
+
+def _matches_any(text, keywords):
+    return any(re.search(rf"\b{kw}\b", text) for kw in keywords)
+
+
+def classify_dog_cat(captions_for_image):
+    """Return (is_dog, is_cat) found in one image's captions (not exclusive)."""
+    text = " ".join(captions_for_image).lower()
+    return _matches_any(text, DOG_KEYWORDS), _matches_any(text, CAT_KEYWORDS)
+
+
+def _split_ids(ids, val_frac=0.1, test_frac=0.1, min_each=2):
+    """Split a shuffled id list into train/val/test, guaranteeing at least
+    `min_each` ids in val/test when there are enough ids to spare."""
+    n = len(ids)
+    n_val = max(min_each, round(n * val_frac)) if n > 2 * min_each else min(min_each, n // 3)
+    n_test = max(min_each, round(n * test_frac)) if n > 2 * min_each else min(min_each, n // 3)
+    val = ids[:n_val]
+    test = ids[n_val:n_val + n_test]
+    train = ids[n_val + n_test:]
+    return train, val, test
+
+
+def build_dog_cat_splits(raw_captions, dog_sample_size=config.DOG_SAMPLE_SIZE,
+                          seed=config.RANDOM_SEED):
+    """
+    Build a small dog/cat-only dataset from Flickr8k and split it into
+    train/val/test. Images mentioning neither a dog nor a cat are dropped
+    entirely. Dog images are randomly downsampled to `dog_sample_size`
+    (Flickr8k has far more dog images than are needed, and they would
+    otherwise still dominate). All cat images are kept (and treated as the
+    "cat" class even if a dog also appears in the same photo) since there
+    are only a handful in the whole dataset.
+
+    Returns (train_ids, val_ids, test_ids, stats).
+    """
+    import random as _random
+    rng = _random.Random(seed)
+
+    dog_ids, cat_ids = [], []
+    for image_id, caps in raw_captions.items():
+        is_dog, is_cat = classify_dog_cat(caps)
+        if is_cat:
+            cat_ids.append(image_id)
+        elif is_dog:
+            dog_ids.append(image_id)
+
+    rng.shuffle(dog_ids)
+    dog_ids = dog_ids[:dog_sample_size]
+    rng.shuffle(cat_ids)
+
+    dog_train, dog_val, dog_test = _split_ids(dog_ids)
+    cat_train, cat_val, cat_test = _split_ids(cat_ids)
+
+    train_ids = dog_train + cat_train
+    val_ids = dog_val + cat_val
+    test_ids = dog_test + cat_test
+    rng.shuffle(train_ids)
+    rng.shuffle(val_ids)
+    rng.shuffle(test_ids)
+
+    stats = {
+        "dog_total": len(dog_ids), "cat_total": len(cat_ids),
+        "dog_train": len(dog_train), "dog_val": len(dog_val), "dog_test": len(dog_test),
+        "cat_train": len(cat_train), "cat_val": len(cat_val), "cat_test": len(cat_test),
+    }
+    return train_ids, val_ids, test_ids, stats
+
+
+def oversample_cats_in_training(train_ids, raw_captions,
+                                 cap=config.CAT_OVERSAMPLE_CAP, seed=config.RANDOM_SEED):
+    """
+    Duplicate cat training images so they get comparable per-epoch exposure
+    to the (more numerous) dog training images, capped at `cap` repeats.
+    Only ever applied to the training split.
+    """
+    import random as _random
+    rng = _random.Random(seed)
+
+    dog_count, cat_ids = 0, []
+    for image_id in train_ids:
+        is_dog, is_cat = classify_dog_cat(raw_captions.get(image_id, []))
+        if is_cat:
+            cat_ids.append(image_id)
+        elif is_dog:
+            dog_count += 1
+
+    if not cat_ids:
+        return list(train_ids)
+
+    factor = min(cap, max(1, round(dog_count / len(cat_ids)))) if dog_count else 1
+    resampled = list(train_ids) + cat_ids * (factor - 1)
+    rng.shuffle(resampled)
+    return resampled
+
+
+# ---------------------------------------------------------------------------
 # Vocabulary / tokenizer
 # ---------------------------------------------------------------------------
 def build_tokenizer(cleaned_mapping, image_ids, max_vocab=config.MAX_VOCAB_SIZE,

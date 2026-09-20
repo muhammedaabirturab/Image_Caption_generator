@@ -1,77 +1,99 @@
 {
-  "num_test_images": 1000,
+  "num_test_images": 32,
   "bleu_scores": {
-    "BLEU-1": 0.2962962962962963,
-    "BLEU-2": 0.17953723795727153,
-    "BLEU-3": 0.09996936986053559,
-    "BLEU-4": 0.05834601656190928
+    "BLEU-1": 0.7136686595251353,
+    "BLEU-2": 0.5217514733479548,
+    "BLEU-3": 0.33289059463975956,
+    "BLEU-4": 0.2152050793344715
   },
   "qualitative_examples": [
     {
-      "image_id": "3385593926_d3e9c21170.jpg",
+      "image_id": "1799271536_6e69c8f1dc.jpg",
       "actual_captions": [
-        "the dogs are in the snow in front of a fence",
-        "the dogs play on the snow",
-        "two brown dogs playfully fight in the snow",
-        "two brown dogs wrestle in the snow",
-        "two dogs playing in the snow"
+        "a brown and black dog runs down a sandy beach",
+        "an animal running through the sand at the beach",
+        "an orange cat with black stripes on a beach",
+        "a striped dog runs along the beach",
+        "long necked dog jumps on"
       ],
-      "generated_caption": "a dog is running through the grass"
+      "generated_caption": "a dog is running on a beach"
     },
     {
-      "image_id": "2677656448_6b7e7702af.jpg",
+      "image_id": "2882483779_73c171ac19.jpg",
       "actual_captions": [
-        "a brown and white dog swimming towards some in the pool",
-        "a dog in a swimming pool swims toward sombody we cannot see",
-        "a dog swims in a pool near a person",
-        "small dog is paddling through the water in a pool",
-        "the small brown and white dog is in the pool"
+        "a black dog is looking at the tabby cat that is sitting by the window",
+        "a dog and cat sit by a table with toys on it",
+        "a tawny cat is playing with a basket while a black dog watches",
+        "big black dog and kitten curiously looking at the wooden weave basket",
+        "the pets play in the apartment"
       ],
-      "generated_caption": "a young girl in a pink shirt is playing with a ball in the grass"
+      "generated_caption": "a dog is playing on the snow"
     },
     {
-      "image_id": "311146855_0b65fdb169.jpg",
+      "image_id": "3535084928_858544f49a.jpg",
       "actual_captions": [
-        "a man and a woman in festive costumes dancing",
-        "a man and a woman with feathers on her head dance",
-        "a man and a woman wearing decorative costumes and dancing in a crowd of onlookers",
-        "one performer wearing a feathered headdress dancing with another performer in the streets",
-        "two people are dancing with drums on the right and a crowd behind them"
+        "a brown dogs licks its black nose",
+        "a closeup of a dog licking his nose",
+        "a closeup of a dog with a white chest licking its nose",
+        "a dog is licking its nose in the grass",
+        "there is a dog licking its chops"
       ],
-      "generated_caption": "a man in a red shirt and a woman in a red shirt and a woman in a red shirt and a woman in a red shirt and a woman in a red shirt and a woman"
+      "generated_caption": "a dog is running on the snow"
     },
     {
-      "image_id": "1258913059_07c613f7ff.jpg",
+      "image_id": "2543589122_ec3e55f434.jpg",
       "actual_captions": [
-        "a couple of people sit outdoors at a table with an umbrella and talk",
-        "three people are sitting at an outside picnic bench with an umbrella",
-        "three people sit at an outdoor cafe",
-        "three people sit at an outdoor table in front of a building painted like the union jack",
-        "three people sit at a picnic table outside of a building painted like a union jack"
+        "a beige and dark brown dog plays in the swimming pool with his mouth open",
+        "a black and white dog trying to bite a stream of water",
+        "a dog is making a splash in a blue paddling pool",
+        "a dog is splashing through water trying to catch ice in its mouth",
+        "a dog playing in some water"
       ],
-      "generated_caption": "a man in a red shirt and a black shirt and a black shirt and a black shirt and a black shirt and a black shirt and a black shirt and a black shirt and a black"
+      "generated_caption": "a black dog is running in the snow"
     },
     {
-      "image_id": "241347760_d44c8d3a01.jpg",
+      "image_id": "3251976937_20625dc2b8.jpg",
       "actual_captions": [
-        "a man is wearing a sooners red football shirt and helmet",
-        "a oklahoma sooners football player wearing his jersey number",
-        "a sooners football player weas the number and black armbands",
-        "guy in red and white football uniform",
-        "the american footballer is wearing a red and white strip"
+        "a brown dog holding a huge stick in its mouth running in the snow",
+        "a brown dog holding a really big stick",
+        "a dog in the snow carrying a tree limb in its mouth",
+        "brown dog runs through snow with a snow covered branch in its mouth",
+        "the brown dog running in the snow is carrying a large stick also covered with snow"
       ],
-      "generated_caption": "a football player in a red uniform is playing basketball"
+      "generated_caption": "a black dog is running in the water"
     },
     {
-      "image_id": "2654514044_a70a6e2c21.jpg",
+      "image_id": "3673165148_67f217064f.jpg",
       "actual_captions": [
-        "a brown dog running",
-        "a brown dog running over grass",
-        "a brown dog with its front paws off the ground on a grassy surface near red and purple flowers",
-        "a dog runs across a grassy lawn near some flowers",
-        "a yellow dog is playing in a grassy area near flowers"
+        "a brown and white dog is standing in shallow water on a beach near a large rock outcrop",
+        "a brown and white dog on the beach",
+        "a dog standing on a beach",
+        "a dog stands on the beach with a large rock behind him",
+        "an unusual looking dog is standing in front of a beautiful backdrop"
       ],
-      "generated_caption": "a dog is running through the grass"
+      "generated_caption": "a dog is running out of the beach"
+    },
+    {
+      "image_id": "3346711367_5e7b29e20f.jpg",
+      "actual_captions": [
+        "a black dog is chasing a tan and white dog on a sunny day",
+        "a black dog is running behind a brown and white dog across a low cut field",
+        "a brown and white dog runs through the grass chased by a black dog",
+        "two dogs chase down a mowed grass field",
+        "two dogs running in grassy area"
+      ],
+      "generated_caption": "a dog is running on the snow"
+    },
+    {
+      "image_id": "290019324_23582048d4.jpg",
+      "actual_captions": [
+        "a black and white dog with a spotted face is running through a dirt field",
+        "a dog is running",
+        "a dog runs across the ground",
+        "a white and black dog is running over dirt",
+        "the black and white dog trots through the dirt"
+      ],
+      "generated_caption": "a dog is running on the snow"
     }
   ]
 }

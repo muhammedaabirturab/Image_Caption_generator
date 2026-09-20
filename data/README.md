@@ -42,10 +42,23 @@ After extracting, `data/raw/` should contain the folder `Flicker8k_Dataset/`
   enough to preprocess and train on a single laptop.
 - **Split:** the dataset ships with an official partition of
   6,000 / 1,000 / 1,000 images for train / validation / test
-  (75% / 12.5% / 12.5%, close to the commonly used 80/10/10 split). The
-  split is done **by image**, so all 5 captions of a given image stay in
-  the same split — no image or caption leaks between train, validation
-  and test.
+  (75% / 12.5% / 12.5%, close to the commonly used 80/10/10 split). This
+  project does **not** use that official split directly — see below.
+
+## Dog/cat filtering (this project's actual scope)
+
+Download and extract the full Flickr8k dataset as described above — that
+part doesn't change. But `src/train.py` and `src/evaluate.py` don't use
+Flickr8k's full 8,091 images or its official split file. Instead,
+`build_dog_cat_splits()` in `src/data_preprocessing.py` filters the
+dataset down to dog and cat images only (Flickr8k is extremely
+imbalanced: ~2,012 dog images vs. only 23 cat images — see the main
+[README](../README.md#4-dataset) for why), caps dogs at 300, keeps all
+23 cat images, and builds a fresh 80/10/10 split from just that subset.
+This happens automatically in code — no extra manual step is needed
+beyond downloading the full dataset above. The split is still done **by
+image**, so no image or caption leaks between train, validation and
+test.
 
 ## Processed artifacts
 
@@ -57,5 +70,7 @@ After extracting, `data/raw/` should contain the folder `Flicker8k_Dataset/`
 - `image_features.pkl` — cached 2048-d InceptionV3 feature vectors, so the
   CNN forward pass only ever runs once per image.
 
-These files are also excluded from git (see `.gitignore`) — they are
-regenerated locally from the raw dataset.
+`captions_clean.json` and `tokenizer.pkl` **are committed** (they're
+small and the app needs the tokenizer to run without a full local
+retrain). `image_features.pkl` is excluded from git — it's a large
+(~60MB), easily-regenerated cache, not needed for inference.

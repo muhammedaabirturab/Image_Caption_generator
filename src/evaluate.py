@@ -30,7 +30,7 @@ from tensorflow.keras.models import load_model
 
 from src import config
 from src.caption_generator import generate_caption_tokens
-from src.data_preprocessing import get_splits, load_clean_captions
+from src.data_preprocessing import build_dog_cat_splits, classify_dog_cat, load_clean_captions, load_raw_captions
 from src.feature_extraction import extract_features, load_features, save_features
 
 
@@ -63,7 +63,8 @@ def evaluate(model_path=None, num_examples=6, limit=None):
     model = load_model(model_path)
 
     cleaned = load_clean_captions()
-    _, _, test_ids = get_splits()
+    raw_captions = load_raw_captions()
+    _, _, test_ids, _ = build_dog_cat_splits(raw_captions)
     if limit:
         test_ids = test_ids[:limit]
 
@@ -82,8 +83,16 @@ def evaluate(model_path=None, num_examples=6, limit=None):
         )
     print(f"[evaluate] Evaluating on {len(test_ids)} test images.")
 
+    # Cats are scarce in this dataset (a handful of test images) -- make sure
+    # they're guaranteed to show up in the qualitative figure instead of
+    # being left to chance among mostly-dog examples.
+    cat_test_ids = {
+        image_id for image_id in test_ids
+        if classify_dog_cat(cleaned.get(image_id, []))[1]
+    }
+
     references, hypotheses = [], []
-    qualitative_examples = []
+    per_image_results = {}
 
     for image_id in test_ids:
         feature = features[image_id]
@@ -94,13 +103,19 @@ def evaluate(model_path=None, num_examples=6, limit=None):
 
         references.append(actual_captions)
         hypotheses.append(predicted_tokens)
+        per_image_results[image_id] = {
+            "image_id": image_id,
+            "actual_captions": [" ".join(c) for c in actual_captions],
+            "generated_caption": " ".join(predicted_tokens),
+        }
 
-        if len(qualitative_examples) < num_examples:
-            qualitative_examples.append({
-                "image_id": image_id,
-                "actual_captions": [" ".join(c) for c in actual_captions],
-                "generated_caption": " ".join(predicted_tokens),
-            })
+    example_ids = list(cat_test_ids)[:num_examples]
+    for image_id in test_ids:
+        if len(example_ids) >= num_examples:
+            break
+        if image_id not in example_ids:
+            example_ids.append(image_id)
+    qualitative_examples = [per_image_results[i] for i in example_ids]
 
     smoothing = SmoothingFunction().method1
     bleu_scores = {}
@@ -137,7 +152,7 @@ def plot_bleu_scores(bleu_scores):
     plt.bar(names, values, color="#4C72B0")
     plt.ylim(0, 1)
     plt.ylabel("Score")
-    plt.title("BLEU Scores on Flickr8k Test Set")
+    plt.title("BLEU Scores on Dog/Cat Test Set")
     for i, v in enumerate(values):
         plt.text(i, v + 0.02, f"{v:.3f}", ha="center")
     plt.tight_layout()

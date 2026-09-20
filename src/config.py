@@ -66,3 +66,10 @@ GREEDY_MAX_LENGTH_FALLBACK = 34  # used only if max_length is not available
 
 # Reproducibility
 RANDOM_SEED = 42
+
+# ---------------------------------------------------------------------------
+# Dog/cat-only dataset scope (see src/data_preprocessing.py:build_dog_cat_splits
+# and the README's Dataset section for why the project is scoped this way).
+# ---------------------------------------------------------------------------
+DOG_SAMPLE_SIZE = 300     # randomly keep at most this many of Flickr8k's ~2012 dog images
+CAT_OVERSAMPLE_CAP = 10   # never repeat a single cat training image more than this

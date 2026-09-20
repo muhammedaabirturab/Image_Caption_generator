@@ -17,7 +17,7 @@ from PIL import Image
 from src import config
 from src.caption_generator import generate_caption
 
-st.set_page_config(page_title="Image Caption Generator", page_icon="🖼️", layout="centered")
+st.set_page_config(page_title="Dog & Cat Caption Generator", page_icon="🐾", layout="centered")
 
 
 @st.cache_resource(show_spinner=False)
@@ -54,8 +54,12 @@ def load_artifacts():
 
 
 def main():
-    st.title("Image Caption Generator")
-    st.write("Upload an image and let the deep learning model generate a caption.")
+    st.title("Dog & Cat Image Caption Generator")
+    st.write(
+        "Upload a photo of a dog or cat and let the deep learning model generate a caption. "
+        "This model is trained only on dogs and cats — other subjects will still get a "
+        "caption, but it shouldn't be trusted."
+    )
 
     artifacts = load_artifacts()
     if "error" in artifacts:
@@ -106,7 +110,7 @@ def main():
     st.divider()
     st.caption(
         "College mini-project: InceptionV3 (CNN encoder) + LSTM decoder, "
-        "trained on the Flickr8k dataset."
+        "trained on a dog/cat-filtered subset of the Flickr8k dataset."
     )
 
 

@@ -43,12 +43,13 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 
 from src import config
 from src.data_preprocessing import (
+    build_dog_cat_splits,
     build_tokenizer,
     clean_captions_mapping,
-    get_splits,
     load_clean_captions,
     load_raw_captions,
     max_caption_length,
+    oversample_cats_in_training,
     save_clean_captions,
 )
 from src.feature_extraction import extract_features, load_features, save_features
@@ -156,25 +157,44 @@ def main():
     parser.add_argument("--learning-rate", type=float, default=config.LEARNING_RATE)
     parser.add_argument("--limit-images", type=int, default=None,
                          help="Use only the first N training images (quick sanity run).")
+    parser.add_argument("--no-oversample-cats", action="store_true",
+                         help="Disable cat-image oversampling in the training set "
+                              "(see src/data_preprocessing.py).")
     args = parser.parse_args()
 
     os.makedirs(config.MODELS_DIR, exist_ok=True)
     os.makedirs(config.FIGURES_DIR, exist_ok=True)
 
     cleaned = prepare_captions()
-    train_ids, val_ids, test_ids = get_splits()
+    raw_captions = load_raw_captions()
+    unique_train_ids, val_ids, test_ids, split_stats = build_dog_cat_splits(raw_captions)
+    print(
+        f"[train] Dog/cat dataset: {split_stats['dog_total']} dog images "
+        f"({split_stats['dog_train']}/{split_stats['dog_val']}/{split_stats['dog_test']} "
+        f"train/val/test), {split_stats['cat_total']} cat images "
+        f"({split_stats['cat_train']}/{split_stats['cat_val']}/{split_stats['cat_test']} "
+        "train/val/test)."
+    )
+    train_ids = unique_train_ids
 
     if args.limit_images:
         train_ids = train_ids[: args.limit_images]
+        unique_train_ids = train_ids
         val_ids = val_ids[: max(1, args.limit_images // 5)]
         print(f"[train] Quick run: limited to {len(train_ids)} train / {len(val_ids)} val images.")
+    elif not args.no_oversample_cats:
+        train_ids = oversample_cats_in_training(unique_train_ids, raw_captions)
+        print(
+            f"[train] Oversampled cat training images -> {len(train_ids)} total "
+            f"training samples/epoch (from {len(unique_train_ids)} unique images)."
+        )
 
     tokenizer = prepare_tokenizer(cleaned, train_ids)
     vocab_size = min(len(tokenizer.word_index) + 1, config.MAX_VOCAB_SIZE)
     max_length = max_caption_length(cleaned, train_ids)
     print(f"[train] Vocabulary size: {vocab_size} | Max caption length: {max_length}")
 
-    all_needed_ids = train_ids + val_ids
+    all_needed_ids = list(set(unique_train_ids) | set(val_ids))
     features = prepare_features(all_needed_ids)
 
     train_steps = max(1, count_sequences(train_ids, cleaned, features) // args.batch_size)
@@ -192,7 +212,7 @@ def main():
     callbacks = [
         ModelCheckpoint(config.BEST_MODEL_FILE, monitor="val_loss",
                          save_best_only=True, verbose=1),
-        EarlyStopping(monitor="val_loss", patience=4, restore_best_weights=True, verbose=1),
+        EarlyStopping(monitor="val_loss", patience=5, restore_best_weights=True, verbose=1),
     ]
 
     history = model.fit(
