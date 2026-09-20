@@ -70,13 +70,13 @@ def main():
         )
         return
 
-    uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png", "webp"])
 
     if uploaded_file is not None:
         try:
             image = Image.open(uploaded_file)
         except Exception:
-            st.error("Could not read this file as an image. Please upload a valid JPG/PNG.")
+            st.error("Could not read this file as an image. Please upload a valid JPG/PNG/WebP.")
             return
 
         st.image(image, caption="Uploaded image", use_column_width=True)
